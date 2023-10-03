@@ -1,0 +1,30 @@
+project_directory: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering
+project_info: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/ProjectInfo
+project_analysis: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/Analysis
+results: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/Analysis/RESULTS
+sample_sheet: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/ProjectInfo/sample_sheet.xlsx
+functions: /bicoh/MARGenomics/Development/ChIPSeq/Functions
+
+
+merge: false
+trimming: false
+qc: false
+alignment: true
+filtering: true
+qc_peaks: true
+changing_names: true
+mv_bams: true
+peak_calling: true
+MACS: true
+EPIC: true
+bigbed: true
+
+genome: /bicoh/MARGenomics/Ref_Genomes_fa/GRCh38/GRCh38.primary_assembly.genome.fa
+index_bowtie2: /bicoh/MARGenomics/AnalysisFiles/Index_Genomes_Bowtie2/Human/GRCh38_ChIPSeq/GRCh38/GRCh38
+chrom_sizes: /bicoh/MARGenomics/Development/ChIPSeq/Functions/GRCh38.primary_assembly.genome.chrom.sizes
+
+num_samples: 24
+
+
+macs2_specie: hs
+epic2_specie: hg38

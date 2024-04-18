@@ -45,3 +45,4 @@ macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_input --nom
 echo "${THISCOMP}_chip_vs_input" done! >> ${PEAKDIR}/CHIP_INPUT/count.txt
 fi
 
+

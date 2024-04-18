@@ -15,6 +15,7 @@ module load Bowtie2/2.4.2-GCC-10.2.0
 module load picard/2.25.1-Java-11
 module load R/4.2.2
 
+echo -e "Modules loaded."
 #======NEEDED FILES======#
 
 FASTQDIR=$1
@@ -34,6 +35,8 @@ i=$(($SLURM_ARRAY_TASK_ID - 1))
 THISFASTQFILE=${FASTQFILES[$i]}
 
 name=$(basename ${THISFASTQFILE} .fastq.gz)
+
+echo -e "Running BOWTIE2 and Picard for sample $name."
 
 ##==================#
 #  BOWTIE2 + Picard #

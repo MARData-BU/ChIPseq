@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p bigmem            # Partition to submit to
+#SBATCH -p long            # Partition to submit to
 #SBATCH --cpus-per-task=6
 #SBATCH --mem-per-cpu 20Gb     # Memory in MB
 #SBATCH -J preseq           # job name
@@ -27,4 +27,7 @@ name=$(basename ${THISBAMFILE})
 
 bedtools bamtobed -i $THISBAMFILE > ${PRESEQDIR}/BEDFiles/${name}.bed
 
-/soft/system/software/preseq/3.2.0/preseq lc_extrap -o ${PRESEQDIR}/${name}_lc_extrap.txt ${PRESEQDIR}/BEDFiles/${name}.bed # predict the complexity curve of a sequencing library
+/soft/system/software/preseq/3.2.0/preseq lc_extrap -o ${PRESEQDIR}/${name}_lc_extrap.txt -v ${PRESEQDIR}/BEDFiles/${name}.bed # predict the complexity curve of a sequencing library
+
+# This is only showing sample complexity. If it fails, it might mean that the data exhibits perfect diversity (data had been de-duplicated or data will never reach saturation)
+# https://github.com/smithlabcode/preseq/issues/71

@@ -3,10 +3,11 @@ bamDir=commandArgs()[7]
 outputDir=commandArgs()[8]
 
 print(samplesheet)
+print(bamDir)
+print(outputDir)
 
 require(openxlsx)
 samplesheet_xlsx <- read.xlsx(xlsxFile=samplesheet, sheet=2)
-
 
 if (ncol(samplesheet_xlsx) > 3){
   dataframe_comparisons <- data.frame(matrix(data=NA, ncol=2, nrow=nrow(samplesheet_xlsx)*2))

@@ -17,6 +17,7 @@ mkdir ./logs
 
 FASTQDIR=$1
 OUTDIR=$2
+ADAPTER=$3
 
 #--------------------
 
@@ -28,5 +29,5 @@ THISFASTQFILE=${FASTQFILES[i]}
 
 name=$(basename ${THISFASTQFILE})
 
-cutadapt -m 20 -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC -o ${OUTDIR}/${name} ${THISFASTQFILE} #adapter seq from https://github.com/vsbuffalo/scythe/blob/master/illumina_adapters.fa
+cutadapt -m 20 -a ${ADAPTER} -o ${OUTDIR}/${name} ${THISFASTQFILE} #adapter seq from https://github.com/vsbuffalo/scythe/blob/master/illumina_adapters.fa
 #echo "testing cutadapt script for using trimmed data"

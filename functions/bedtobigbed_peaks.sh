@@ -45,6 +45,9 @@ bedtools sort -i  ${PEAKDIR}/${name}.bed > ${PEAKDIR}/${name}.sorted.bed
 # this step is necessary because bedtobigbed does not allow to have floats!!! : 
 awk -F '\t' '{OFS="\t"; $5=""; print}' ${PEAKDIR}/${name}.sorted.bed > ${PEAKDIR}/${name}.sorted.filtered.bed
 
+chmod 777 ${PEAKDIR}/*
+chmod 777 ${FUNCTIONDIR}/bedToBigBed 
+
 ${FUNCTIONDIR}/bedToBigBed ${PEAKDIR}/${name}.sorted.filtered.bed ${CHROM_SIZE} ${BIGBEDDIR}/${name}.sorted.filtered.bb
 
 
@@ -74,5 +77,4 @@ awk -F '\t' '{OFS="\t"; $5=""; print}' ${PEAKDIR}/${name}.sorted.bed > ${PEAKDIR
 ${FUNCTIONDIR}/bedToBigBed ${PEAKDIR}/${name}.sorted.filtered.bed ${CHROM_SIZE} ${BIGBEDDIR}/${name}.sorted.filtered.bb
 
 echo ${BIGBEDDIR}/${name}.sorted.filtered.bb
-
 

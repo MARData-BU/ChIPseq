@@ -11,33 +11,27 @@
 
 #-------------------------------------------------------------- NEEDED FILES AND PATHS --------------------------------------------------------------
 
-
 BAMDIR=$1
 
 #-------------------------------------------------------------- Move --------------------------------------------------------------
-
 
 mkdir $BAMDIR/MOCK
 mkdir $BAMDIR/INPUT
 mkdir $BAMDIR/CHIP
 
-if [ $BAMDIR/*mock_sorted.dedup.filtered.bam ] 
-then
-	#mv $BAMDIR/*_mock_sorted.bam $BAMDIR/MOCK/
-	#mv $BAMDIR/*_mock_sorted.bam.bai $BAMDIR/MOCK/
-	#mv $BAMDIR/*_mock.sam $BAMDIR/MOCK/
-	mv $BAMDIR/*mock_sorted.dedup.filtered.bam $BAMDIR/MOCK/
-fi
+# We will create hyperlinks so files do not need to be moved, which takes longer time
 
-#mv $BAMDIR/*_input_sorted.bam $BAMDIR/INPUT/
-#mv $BAMDIR/*_input_sorted.bam.bai $BAMDIR/INPUT/
-#mv $BAMDIR/*_input.sam $BAMDIR/INPUT/
-mv $BAMDIR/*input_sorted.dedup.filtered.bam $BAMDIR/INPUT/
+find "$BAMDIR" -maxdepth 1 -type f -name '*mock_sorted.dedup.filtered.bam' | while read -r file; do
+	echo "$file"
+	ln -sf "$file" "$BAMDIR/MOCK/"
+done
 
-#mv $BAMDIR/*_chip_sorted.bam $BAMDIR/CHIP/
-#mv $BAMDIR/*_chip_sorted.bai $BAMDIR/CHIP/
-#mv $BAMDIR/*_chip.sam $BAMDIR/CHIP/
-mv $BAMDIR/*chip_sorted.dedup.filtered.bam $BAMDIR/CHIP/
+find "$BAMDIR" -maxdepth 1 -type f -name '*input_sorted.dedup.filtered.bam' | while read -r file; do
+	echo "$file"
+	ln -sf "$file" "$BAMDIR/INPUT/"
+done
 
-rm ${BAMDIR}/*.bam
-rm ${BAMDIR}/*.sam
+find "$BAMDIR" -maxdepth 1 -type f -name '*chip_sorted.dedup.filtered.bam' | while read -r file; do
+	echo "$file"
+	ln -sf "$file" "$BAMDIR/CHIP/"
+done

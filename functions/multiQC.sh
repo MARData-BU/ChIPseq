@@ -12,12 +12,10 @@ module load Python/3.8.6-GCCcore-10.2.0
 
 #======NEEDED FILES======#
 QCDIR=$1
-OUTPUT=$2
-
 
 #======COMMAND======#
 
 mkdir ${QCDIR}/multiQC
 MULTIQCDIR=${QCDIR}/multiQC
 
-multiqc ${OUTPUT}/* -f -o $MULTIQCDIR
+multiqc ${QCDIR}/* -f -o $MULTIQCDIR

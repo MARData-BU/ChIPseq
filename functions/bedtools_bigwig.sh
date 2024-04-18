@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -p bigmem            # Partition to submit to
-#SBATCH --cpus-per-task=20
+#SBATCH -p long            # Partition to submit to
+#SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu 30Gb     # Memory in MB
 #SBATCH -J BIGWIG           # job name
 #SBATCH -o logs/BIGWIG.%A_%a.out    # File to which standard out will be written
@@ -15,7 +15,7 @@ module load SAMtools/1.12-GCC-10.2.0
 
 BAMDIR=$1
 BIGWIGDIR=$2
-FUNCTIONDIR=$3
+FUNCTIONSDIR=$3
 chrom_sizes=$4
 # we need a file of chromosome sizes for the bedGraphToBigWig program: it is created using fasta file; see below
 
@@ -40,8 +40,11 @@ bedtools genomecov -ibam $THISBAMFILE -bg -scale 1 > ${BIGWIGDIR}/${name}.bedgra
 
 LC_COLLATE=C sort -k1,1 -k2,2n ${BIGWIGDIR}/${name}.bedgraph > ${BIGWIGDIR}/${name}.sorted.bedgraph
 
-${FUNCTIONDIR}/bedGraphToBigWig ${BIGWIGDIR}/${name}.sorted.bedgraph $chrom_sizes ${BIGWIGDIR}/${name}.bw
+chmod 777 ${FUNCTIONSDIR}/bedGraphToBigWig # solve permission problems
+
+${FUNCTIONSDIR}/bedGraphToBigWig ${BIGWIGDIR}/${name}.sorted.bedgraph $chrom_sizes ${BIGWIGDIR}/${name}.bw
 
 ### Getting the number of mapped reads ###
 
+samtools index ${THISBAMFILE} # generate a new bai so it matches the exact name of THISBAMFILE
 samtools idxstats ${THISBAMFILE} | awk '{sum+=$3}END{print sum}'

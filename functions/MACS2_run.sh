@@ -19,4 +19,3 @@ number_of_comparisons=$(cat ${PROJECTINFO}/comparisons.txt | wc -l)
 sbatch --array=1-$number_of_comparisons ${FUNCTIONSDIR}/MACS2.sh ${PROJECTINFO} ${PEAKDIR} $PHANTOM_PEAK_DIR $macs2_specie ${FUNCTIONSDIR}
 
 
-

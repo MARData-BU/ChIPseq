@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH -p bigmem           # Partition to submit to
+#SBATCH -p long           # Partition to submit to
 #SBATCH --cpus-per-task=8
-#SBATCH --mem-per-cpu 40Gb     # Memory in MB
+#SBATCH --mem-per-cpu 20Gb     # Memory in MB
 #SBATCH -J phantompeak           # job name
 #SBATCH -o logs/phantompeak.%j.out    # File to which standard out will be written
 #SBATCH -e logs/phantompeak.%j.err    # File to which standard err will be written
@@ -31,3 +31,4 @@ name=$(basename ${THISBAMFILE})
 
 
 Rscript ${FUNCTIONSDIR}/run_spp.R -c=$THISBAMFILE -savp="${OUTPUT}/${name}.spp.pdf" -savd="${OUTPUT}/${name}.spp.RData" -out="${OUTPUT}/${name}.spp.out"
+

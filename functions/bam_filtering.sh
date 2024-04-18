@@ -16,6 +16,8 @@ module load SAMtools/1.12-GCC-10.2.0
 # Inputs
 DIR=$1
 
+echo -e "The BAM directory has been defined as $DIR."
+
 #-------------------------------------------------------------- LOOP --------------------------------------------------------------
 
 BAMFILES=($(ls -1 $DIR/*_sorted.bam))
@@ -26,6 +28,8 @@ THISBAMFILE=${BAMFILES[i]}
 
 name=$(basename ${THISBAMFILE} .bam)
 
+echo -e "Analyzing BAM $name."
+
 #-------------------------------------------------------------- COMMAND --------------------------------------------------------------
 
 java -jar $EBROOTPICARD/picard.jar MarkDuplicates \
@@ -34,4 +38,3 @@ O=${DIR}/${name}.dedup.bam \
 M=${DIR}/${name}_markduplicates_Metrics.txt
 
 samtools view -h -F 1804 -q 20 ${DIR}/${name}.dedup.bam | samtools sort -O bam -o ${DIR}/${name}.dedup.filtered.bam
-

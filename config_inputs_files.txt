@@ -1,30 +1,34 @@
-project_directory: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering
-project_info: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/ProjectInfo
-project_analysis: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/Analysis
-results: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/Analysis/RESULTS
-sample_sheet: /bicoh/MARGenomics/20230529_IHernandez_ChIPSeq_Filtering/ProjectInfo/sample_sheet.xlsx
-functions: /bicoh/MARGenomics/Development/ChIPSeq/Functions
-
+project_directory: /users/genomics/paub/20240402_ICuervas_ChIPSeq
+project_info: /users/genomics/paub/20240402_ICuervas_ChIPSeq/ProjectInfo
+project_analysis: /users/genomics/paub/20240402_ICuervas_ChIPSeq/Analysis
+results: /users/genomics/paub/20240402_ICuervas_ChIPSeq/Analysis/Results
+sample_sheet: /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/Analysis/sample_sheet.xlsx
+functions: /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/Analysis/functions
 
 merge: false
 trimming: false
 qc: false
-alignment: true
+alignment: false
 filtering: true
 qc_peaks: true
-changing_names: true
+changing_names: false
 mv_bams: true
 peak_calling: true
 MACS: true
-EPIC: true
-bigbed: true
+EPIC: false
+bigbed: false
 
 genome: /bicoh/MARGenomics/Ref_Genomes_fa/GRCh38/GRCh38.primary_assembly.genome.fa
 index_bowtie2: /bicoh/MARGenomics/AnalysisFiles/Index_Genomes_Bowtie2/Human/GRCh38_ChIPSeq/GRCh38/GRCh38
 chrom_sizes: /bicoh/MARGenomics/Development/ChIPSeq/Functions/GRCh38.primary_assembly.genome.chrom.sizes
+adapter: GATCGGAAGAGCACACGTCTGAACTCCAGTC
 
-num_samples: 24
+fastqdir: /users/genomics/paub/20240402_ICuervas_ChIPSeq/Analysis/Merged_data
+batch_num: 1
+batch_folder: NA
+fastq_suffix: .fastq.gz
 
+num_samples: 8
 
 macs2_specie: hs
 epic2_specie: hg38

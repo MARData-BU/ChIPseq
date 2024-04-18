@@ -9,10 +9,17 @@
 module purge
 module load R/4.2.1-foss-2020b
 
-
 SAMPLE_SHEET=$1
 BAMDIR=$2
 PROJECTINFO=$3
 FUNCTIONSDIR=$4
+
+echo -e "Sample sheet is $SAMPLE_SHEET."
+echo -e "BAM directory is $BAMDIR."
+echo -e "Project info is $PROJECTINFO."
+echo -e "Functions directory is $FUNCTIONSDIR."
+
+mkdir -p ${PROJECTINFO}
+chmod 777 ${PROJECTINFO} # grant permissions to read/write
 
 Rscript ${FUNCTIONSDIR}/create_comparison_txt.R $SAMPLE_SHEET $BAMDIR $PROJECTINFO

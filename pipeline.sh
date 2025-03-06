@@ -108,9 +108,7 @@ echo -e "  ###" FUNCTIONS_DIR=$FUNCTIONSDIR
 echo -e "  ###" PROJECT=$PROJECT
 echo -e "  ###" PROJECTINFO=$PROJECTINFO
 echo -e "  ###" GENOME=$GENOME
-echo -e "  ###" NUMBER_CHIP_SAMPLES=$NUMCHIP
-echo -e "  ###" NUMBER_INPUT_SAMPLES=$NUMINPUT
-echo -e "  ###" NUMBER_MOCK_SAMPLES=$NUMMOCK
+echo -e "  ###" NUM_SAMPLES=$NUM_SAMPLES
 echo -e "  ###" OUTPUT=$OUTPUT
 echo -e "  ###" TOTAL_BATCHES=$BATCH
 echo -e "  ###" BATCH_FOLDER=$BATCH_FOLDER
@@ -209,7 +207,7 @@ then
     then
         count=`ls -l $WD/Merged_data/*.fastq | wc -l`
         echo $(ls -l $WD/Merged_data/*.fastq)
-        while [ $count != $num_samples ] # check whether ALL the files corresponding to every sample are created or not
+        while [ $count != $NUM_SAMPLES ] # check whether ALL the files corresponding to every sample are created or not
         do
           sleep 100 # wait if not
           count=`ls -l $WD/Merged_data/*.fastq | wc -l` # check again
@@ -220,16 +218,16 @@ then
         sleep 300 # if there is no fastq file, sleep for 300 seconds so some fastq file will be generated
         count=`ls -l $WD/Merged_data*.fastq | wc -l`
         echo $(ls -l $WD/Merged_data/*.fastq)
-        while [ $count != $num_samples ] # check whether ALL the files corresponding to every sample are created or not
+        while [ $count != $NUM_SAMPLES ] # check whether ALL the files corresponding to every sample are created or not
         do
           sleep 100 # wait if not
           count=`ls -l $WD/Merged_data/*.fastq | wc -l` # check again
-          echo "The number of fastq files is $count and it should be $num_samples"
+          echo "The number of fastq files is $count and it should be $NUM_SAMPLES"
           echo $(ls -l $WD/Merged_data/*.fastq)
       done
     fi
 
-    echo "All done, there are a total of $count fastq files and it should be $num_samples"
+    echo "All done, there are a total of $count fastq files and it should be $NUM_SAMPLES"
 
     sleep 300 # sleep to ensure that all files have been generated and filled.
 
@@ -238,11 +236,11 @@ then
     count=`ls -l $WD/Merged_data/*${FASTQ_SUFFIX} | wc -l` # check number of compressed files
     echo "The number of fastq.gz files is $count."
 
-    while [ $count != $num_samples ] # check whether ALL the files have been compressed. If not, compress again.
+    while [ $count != $NUM_SAMPLES ] # check whether ALL the files have been compressed. If not, compress again.
     do
         gzip $WD/Merged_data/*.fastq
         count=`ls -l $WD/Merged_data/*${FASTQ_SUFFIX} | wc -l` # check again
-        echo "The number of fastq files is $count and it should be $num_samples"
+        echo "The number of fastq files is $count and it should be $NUM_SAMPLES"
     done
     echo -e "\n\nFastQ Files compressed\n\n"
 else

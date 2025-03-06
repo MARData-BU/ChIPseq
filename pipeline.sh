@@ -173,7 +173,7 @@ mkdir -p $WD
 mkdir -p $OUTPUT
 mkdir -p $PROJECT/QC/multiQC/${folder}
 mkdir -p $PROJECTINFO
-cd /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/Analysis
+cd $WD
 
 ## Creating directories
 mkdir Results logs

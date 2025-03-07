@@ -206,7 +206,6 @@ then
     if ls $WD/Merged_data/*.fastq >/dev/null 2>&1 # check whether there is any .fastq file
     then
         count=`ls -l $WD/Merged_data/*.fastq | wc -l`
-        echo $(ls -l $WD/Merged_data/*.fastq)
         while [ $count != $NUM_SAMPLES ] # check whether ALL the files corresponding to every sample are created or not
         do
           sleep 100 # wait if not
@@ -214,9 +213,9 @@ then
           echo "The number of fastq files is $count"
       done
     else
+ 	echo "There are no merged fastq files yet. Sleeping for 300 seconds..."
         sleep 300 # if there is no fastq file, sleep for 300 seconds so some fastq file will be generated
         count=`ls -l $WD/Merged_data/*.fastq | wc -l`
-        echo $(ls -l $WD/Merged_data/*.fastq)
         while [ $count != $NUM_SAMPLES ] # check whether ALL the files corresponding to every sample are created or not
         do
           sleep 100 # wait if not
@@ -225,15 +224,17 @@ then
       done
     fi
 
-    echo "All done, there are a total of $count fastq files and it should be $NUM_SAMPLES"
+    echo "All done, there are a total of $count fastq files and it should be $NUM_SAMPLES. Sleeping for 300 seconds so the files are properly filled."
 
     sleep 300 # sleep to ensure that all files have been generated and filled.
 
     num_files=$(ls -1 "$WD/Merged_data"/*.fastq | wc -l)
     JOB_GZIP=$(sbatch --array=1-$num_files --parsable "$FUNCTIONSDIR/gzip.sh" "$WD/Merged_data")
-
+    echo "Gzip jobs sent, sleeping for 300 seconds..."
+    sleep 300
+    
     count=`ls -l $WD/Merged_data/*${FASTQ_SUFFIX} | wc -l` # check number of compressed files
-    echo "The number of fastq.gz files is $count."
+    echo "The number of fastq.gz files is $count and it should be $num_files."
 
     while [ $count != $num_samples ] # check whether ALL the files have been compressed. If not, compress again.
     do

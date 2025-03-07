@@ -212,7 +212,6 @@ then
           sleep 100 # wait if not
           count=`ls -l $WD/Merged_data/*.fastq | wc -l` # check again
           echo "The number of fastq files is $count"
-          echo $(ls -l $WD/Merged_data/*.fastq)
       done
     else
         sleep 300 # if there is no fastq file, sleep for 300 seconds so some fastq file will be generated
@@ -223,7 +222,6 @@ then
           sleep 100 # wait if not
           count=`ls -l $WD/Merged_data/*.fastq | wc -l` # check again
           echo "The number of fastq files is $count and it should be $NUM_SAMPLES"
-          echo $(ls -l $WD/Merged_data/*.fastq)
       done
     fi
 

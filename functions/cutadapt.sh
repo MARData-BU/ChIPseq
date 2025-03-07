@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p lowmem           # Partition to submit to
+#SBATCH -p short,normal           # Partition to submit to
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu 5Gb     # Memory in MB
 #SBATCH -J TrimCutadapt           # job name

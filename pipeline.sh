@@ -126,7 +126,7 @@ echo -e "  ###" EPIC=$EPIC
 echo -e "  ###" BIGBED=$BIGBED
 echo -e "  ###" ADAPTER=$ADAPTER #adapter seqs can be found in https://github.com/vsbuffalo/scythe/blob/master/illumina_adapters.fa
 echo -e "  ###" COMPARISONS=$COMPARISONS
-echo -e "  ###" NUM_SAMPLES=$NUM_SAMPLES # total number of samples after the merge (if applicable) or just total number of samples. This is BY BATCH.
+echo -e "  ###" NUM_SAMPLES=$NUM_SAMPLES # total number of samples after the merge (if applicable) or just total number of samples. This is BY BATCH. Include MOCK and/or INPUT samples.
 
 
 echo -e "\n\nAccording to the set up, the steps to perform are:"

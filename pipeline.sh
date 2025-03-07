@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -p normal,long         # Partition to submit to
+#SBATCH -p normal,long,bigmem         # Partition to submit to
 #SBATCH --cpus-per-task=6
 #SBATCH --mem-per-cpu 10Gb     # Memory in MB
 #SBATCH -J Chipseq           # job name
@@ -108,7 +108,9 @@ echo -e "  ###" FUNCTIONS_DIR=$FUNCTIONSDIR
 echo -e "  ###" PROJECT=$PROJECT
 echo -e "  ###" PROJECTINFO=$PROJECTINFO
 echo -e "  ###" GENOME=$GENOME
-echo -e "  ###" NUM_SAMPLES=$NUM_SAMPLES
+echo -e "  ###" NUMBER_CHIP_SAMPLES=$NUMCHIP
+echo -e "  ###" NUMBER_INPUT_SAMPLES=$NUMINPUT
+echo -e "  ###" NUMBER_MOCK_SAMPLES=$NUMMOCK
 echo -e "  ###" OUTPUT=$OUTPUT
 echo -e "  ###" TOTAL_BATCHES=$BATCH
 echo -e "  ###" BATCH_FOLDER=$BATCH_FOLDER
@@ -169,7 +171,7 @@ fi
 
 mkdir -p $WD
 mkdir -p $OUTPUT
-mkdir -p $PROJECT/QC/multiQC/${folder}
+mkdir -p $PROJECT/QC
 mkdir -p $PROJECTINFO
 cd $WD
 
@@ -182,14 +184,15 @@ mkdir Results logs
 
 if [ $MERGE == "true" ]
 then
-    mkdir -p $WD/Merged_data
-    chmod 777 $WD/Merged_data # solve permission problems
+for folder in "${folders[@]}"; do
+    mkdir -p $WD/Merged_data/${folder}
+    chmod 777 $WD/Merged_data/${folder} # solve permission problems
     echo -e "\n\nCreating the script to concatenate the FASTQ files...\n\n"
 
-    sbatch $FUNCTIONSDIR/create_merge_file.sh $FUNCTIONSDIR $SAMPLE_SHEET $WD/Merged_data
-    chmod 777 $WD/Merged_data/merge_to_run.sh # solve permission problems
+    sbatch $FUNCTIONSDIR/create_merge_file.sh $FUNCTIONSDIR $SAMPLE_SHEET $WD/Merged_data/${folder}
+    chmod 777 $WD/Merged_data/${folder}/merge_to_run.sh # solve permission problems
 
-    until [ -f $WD/Merged_data/merge_to_run.sh ] # Wait until merge_to_run.sh created.
+    until [ -f $WD/Merged_data/${folder}/merge_to_run.sh ] # Wait until merge_to_run.sh created.
     do
         echo -e "merge_to_run.sh file does not yet exist. Sleeping for 5 seconds..."
         sleep 5 # wait 5 seconds
@@ -199,27 +202,27 @@ then
 
     echo -e "\n\nMerging FASTQ files...\n\n"
 
-    sbatch --dependency=$(squeue --noheader --format %i --name create_merge_file) $WD/Merged_data/merge_to_run.sh
+    sbatch --dependency=$(squeue --noheader --format %i --name create_merge_file) $WD/Merged_data//${folder}/merge_to_run.sh
 
     echo -e "\n\nCompressing FASTQ files...\n\n"
 
-    if ls $WD/Merged_data/*.fastq >/dev/null 2>&1 # check whether there is any .fastq file
+    if ls $WD/Merged_data/${folder}/*.fastq >/dev/null 2>&1 # check whether there is any .fastq file
     then
-        count=`ls -l $WD/Merged_data/*.fastq | wc -l`
+        count=`ls -l $WD/Merged_data/${folder}/*.fastq | wc -l`
         while [ $count != $NUM_SAMPLES ] # check whether ALL the files corresponding to every sample are created or not
         do
           sleep 100 # wait if not
-          count=`ls -l $WD/Merged_data/*.fastq | wc -l` # check again
+          count=`ls -l $WD/Merged_data/${folder}/*.fastq | wc -l` # check again
           echo "The number of fastq files is $count"
       done
     else
- 	echo "There are no merged fastq files yet. Sleeping for 300 seconds..."
+        echo "There are no merged fastq files yet. Sleeping for 300 seconds..."
         sleep 300 # if there is no fastq file, sleep for 300 seconds so some fastq file will be generated
-        count=`ls -l $WD/Merged_data/*.fastq | wc -l`
+        count=`ls -l $WD/Merged_data/${folder}/*.fastq | wc -l`
         while [ $count != $NUM_SAMPLES ] # check whether ALL the files corresponding to every sample are created or not
         do
           sleep 100 # wait if not
-          count=`ls -l $WD/Merged_data/*.fastq | wc -l` # check again
+          count=`ls -l $WD/Merged_data/${folder}/*.fastq | wc -l` # check again
           echo "The number of fastq files is $count and it should be $NUM_SAMPLES"
       done
     fi
@@ -228,21 +231,40 @@ then
 
     sleep 300 # sleep to ensure that all files have been generated and filled.
 
-    num_files=$(ls -1 "$WD/Merged_data"/*.fastq | wc -l)
-    JOB_GZIP=$(sbatch --array=1-$num_files --parsable "$FUNCTIONSDIR/gzip.sh" "$WD/Merged_data")
+    num_files=$(ls -1 "$WD/Merged_data"/${folder}/*.fastq | wc -l)
+    JOB_GZIP=$(sbatch --array=1-$num_files --parsable "$FUNCTIONSDIR/gzip.sh" "$WD/Merged_data/${folder}")
     echo "Gzip jobs sent, sleeping for 300 seconds..."
     sleep 300
-    
-    count=`ls -l $WD/Merged_data/*${FASTQ_SUFFIX} | wc -l` # check number of compressed files
+
+    count=`ls -l $WD/Merged_data/${folder}/*${FASTQ_SUFFIX} | wc -l` # check number of compressed files
     echo "The number of fastq.gz files is $count and it should be $num_files."
 
-    while [ $count != $num_samples ] # check whether ALL the files have been compressed. If not, compress again.
-    do
-        count=`ls -l $WD/Merged_data/*${FASTQ_SUFFIX} | wc -l` # check again
-        echo "The number of fastq files is $count and it should be $num_samples"
+    JOB_ID=$(echo "$JOB_GZIP" | cut -d' ' -f1)
+
+    # Keep checking if any job from the array is still running
+    while squeue --job="$JOB_ID" | grep -q "$JOB_ID"; do
+        echo "Some gzip jobs are still running. Sleeping for 200 seconds..."
+        sleep 200
+    done
+
+    # Check whether ALL files have been compressed, if not, compress them
+    while [ "$count" -ne "$num_files" ]; do
+        echo "Mismatch detected. Checking for uncompressed .fastq files..."
+
+        # Find and compress any remaining .fastq files
+        find "$WD/Merged_data/${folder}" -type f -name "*.fastq" -exec gzip {} \;
+
+        # Recheck count
+        count=$(ls -l $WD/Merged_data/${folder}/*${FASTQ_SUFFIX} 2>/dev/null | wc -l)
+        echo "The number of fastq.gz files is $count and it should be $num_files."
+
+        # Sleep before rechecking
         sleep 300
     done
+
     echo -e "\n\nFastQ Files compressed\n\n"
+    done
+
 else
   for folder in "${folders[@]}"; do
 
@@ -294,8 +316,8 @@ if [ "$QC" == "true" ]; then
     echo -e "Data for QC will be taken from $INPUT_DATA."
     echo -e "\n\nStarting QC for batch $folder...\n\n"
 
-    mkdir -p "$OUTPUT/QC/${folder}"
-    QCDIR="$OUTPUT/QC/${folder}"
+    mkdir -p "$PROJECT/QC/${folder}"
+    QCDIR="$PROJECT/QC/${folder}"
 
     if ls $INPUT_DATA/*.fastq.gz >/dev/null 2>&1 # check whether there is any .fastq.gz (if trimming is being performed, there might not be any yet)
       then
@@ -699,7 +721,6 @@ fi
 # cp -r /users/genomics/paub/20240402_ICuervas_ChIPSeq/ProjectInfo/2024-01-30_AACFKGGHV /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/ProjectInfo
 # cp -r cp -r /users/genomics/paub/20240402_ICuervas_ChIPSeq/Analysis/Results /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/
 sbatch --array=1-$num_files ${FUNCTIONSDIR}/bedtobigbed_peaks.sh ${MACSDIR}/CHIP_MOCK ${MACSDIR}/CHIP_MOCK/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
-
 
 
 

@@ -50,7 +50,6 @@ ALIGN=$(grep alignment: $PARAMS | awk '{ print$2  }')
 FILTER=$(grep filtering: $PARAMS | awk '{ print$2  }')
 MRG_ALIGN="false"
 QC_PEAK=$(grep qc_peaks: $PARAMS | awk '{ print$2  }')
-# CHANGE_NAMES=$(grep changing_names: $PARAMS | awk '{ print$2  }')
 PEAK_CALL=$(grep peak_calling: $PARAMS | awk '{ print$2  }')
 MV_BAMS=$(grep mv_bams: $PARAMS | awk '{print$2 }')
 MACS=$(grep MACS: $PARAMS | awk '{print$2 }')

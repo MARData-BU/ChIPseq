@@ -315,8 +315,8 @@ if [ "$QC" == "true" ]; then
     echo -e "Data for QC will be taken from $INPUT_DATA."
     echo -e "\n\nStarting QC for batch $folder...\n\n"
 
-    mkdir -p "$PROJECT/QC/${folder}"
-    QCDIR="$PROJECT/QC/${folder}"
+    mkdir -p "$OUTPUT/QC/${folder}"
+    QCDIR="$OUTPUT/QC/${folder}"
 
     if ls $INPUT_DATA/*.fastq.gz >/dev/null 2>&1 # check whether there is any .fastq.gz (if trimming is being performed, there might not be any yet)
       then
@@ -585,11 +585,12 @@ fi
 #   MultiQC       #
 #=================#
 for folder in "${folders[@]}"; do
+  QCDIR=${OUTPUT}/QC/${folder}
   if [ $MV_BAMS == "true" ]
   then
-    sbatch --dependency=afterany:${JOB_MV} ${FUNCTIONSDIR}/multiQC.sh ${OUTPUT}
+    sbatch --dependency=afterany:${JOB_MV} ${FUNCTIONSDIR}/multiQC.sh ${QCDIR}
   else
-    sbatch ${FUNCTIONSDIR}/multiQC.sh ${OUTPUT}
+    sbatch ${FUNCTIONSDIR}/multiQC.sh ${QCDIR}
   fi
 done
 

@@ -718,9 +718,5 @@ fi
 
 fi
 
-# cp -r /users/genomics/paub/20240402_ICuervas_ChIPSeq/ProjectInfo/2024-01-30_AACFKGGHV /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/ProjectInfo
-# cp -r cp -r /users/genomics/paub/20240402_ICuervas_ChIPSeq/Analysis/Results /bicoh/MARGenomics/20240402_ICuervas_ChIPSeq/
-sbatch --array=1-$num_files ${FUNCTIONSDIR}/bedtobigbed_peaks.sh ${MACSDIR}/CHIP_MOCK ${MACSDIR}/CHIP_MOCK/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
-
 
 

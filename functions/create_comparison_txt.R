@@ -9,6 +9,10 @@ print(outputDir)
 require(openxlsx)
 samplesheet_xlsx <- read.xlsx(xlsxFile=samplesheet, sheet=2)
 
+# If there is a column with all NAs, remove it
+cols_to_remove <- sapply(samplesheet_xlsx, function(col) all(is.na(col)))
+samplesheet_xlsx <- samplesheet_xlsx[, !cols_to_remove]
+
 if (ncol(samplesheet_xlsx) > 3){
   dataframe_comparisons <- data.frame(matrix(data=NA, ncol=2, nrow=nrow(samplesheet_xlsx)*2))
   for (i in seq(1,nrow(samplesheet_xlsx)*2,by = 2)){

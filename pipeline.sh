@@ -399,7 +399,7 @@ then
     fi
 
     if [ -n "$JOB_ALIGN" ]; then
-      echo -e "QC jobs sent with IDs ${JOB_ALIGN}."
+      echo -e "Alignment jobs sent with IDs ${JOB_ALIGN}."
     else
       echo "Error: align jobs were not submitted successfully."
     fi
@@ -587,9 +587,9 @@ fi
 for folder in "${folders[@]}"; do
   if [ $MV_BAMS == "true" ]
   then
-    sbatch --dependency=afterany:${JOB_MV} ${FUNCTIONSDIR}/multiQC.sh ${OUTPUT}/QC/${folder}
+    sbatch --dependency=afterany:${JOB_MV} ${FUNCTIONSDIR}/multiQC.sh ${OUTPUT}
   else
-    sbatch ${FUNCTIONSDIR}/multiQC.sh ${OUTPUT}/QC/${folder}
+    sbatch ${FUNCTIONSDIR}/multiQC.sh ${OUTPUT}
   fi
 done
 

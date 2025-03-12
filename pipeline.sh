@@ -644,35 +644,36 @@ if [ $BIGBED == "true" ]
 then
 	if [ -d $OUTPUT/PEAK_CALLING/MACS2/CHIP_INPUT ] || [ -d $OUTPUT/PEAK_CALLING/EPIC2/CHIP_INPUT ]
 	then
-	if [ $PEAK_CALL == "true" ]
-	then
-    MACSDIR=$OUTPUT/PEAK_CALLING/MACS2
-    EPICDIR=$OUTPUT/PEAK_CALLING/EPIC2
-
-		if [ $MACS == "true" ]
-    		then
-          num_files=$(ls -l ${MACSDIR}/CHIP_INPUT/*.bed | wc -l)
-        	mkdir ${MACSDIR}/CHIP_INPUT/BigBeds
-    			sbatch --array=1-$num_files --dependency=afterany:${JOB_MACS} ${FUNCTIONSDIR}/bedtobigbed_peaks.sh ${MACSDIR}/CHIP_INPUT ${MACSDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
-    		fi
-		if [ $EPIC == "true" ]
-    		then
-          num_files=$(ls -l ${EPICDIR}/CHIP_INPUT/*.bed | wc -l)
-        	mkdir ${EPICDIR}/CHIP_INPUT/BigBeds
-    			sbatch --array=1-$num_files --dependency=afterany:${JOB_EPIC} ${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh ${EPICDIR}/CHIP_INPUT ${EPICDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
-    		fi
-	else
-		if [ $MACS == "true" ]
-    		then
-          num_files=$(ls -l ${MACSDIR}/CHIP_INPUT/*.bed | wc -l)
-    			mkdir ${MACSDIR}/CHIP_INPUT/BigBeds
-    			sbatch --array=1-$num_files ${FUNCTIONSDIR}/bedtobigbed_peaks.sh ${MACSDIR}/CHIP_INPUT ${MACSDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
-    		fi
-		if [ $EPIC == "true" ]
-    		then
-          num_files=$(ls -l ${EPICDIR}/CHIP_INPUT/*.bed | wc -l)
-    			mkdir ${EPICDIR}/CHIP_INPUT/BigBeds
-    			sbatch --array=1-$num_files ${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh ${EPICDIR}/CHIP_INPUT ${EPICDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
-    		fi
+		if [ $PEAK_CALL == "true" ]
+		then
+	    	MACSDIR=$OUTPUT/PEAK_CALLING/MACS2
+	    	EPICDIR=$OUTPUT/PEAK_CALLING/EPIC2
+	
+			if [ $MACS == "true" ]
+	    		then
+	          num_files=$(ls -l ${MACSDIR}/CHIP_INPUT/*.bed | wc -l)
+	        	mkdir ${MACSDIR}/CHIP_INPUT/BigBeds
+	    			sbatch --array=1-$num_files --dependency=afterany:${JOB_MACS} ${FUNCTIONSDIR}/bedtobigbed_peaks.sh ${MACSDIR}/CHIP_INPUT ${MACSDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
+	    		fi
+			if [ $EPIC == "true" ]
+	    		then
+	          num_files=$(ls -l ${EPICDIR}/CHIP_INPUT/*.bed | wc -l)
+	        	mkdir ${EPICDIR}/CHIP_INPUT/BigBeds
+	    			sbatch --array=1-$num_files --dependency=afterany:${JOB_EPIC} ${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh ${EPICDIR}/CHIP_INPUT ${EPICDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
+	    		fi
+		else
+			if [ $MACS == "true" ]
+	    		then
+	          num_files=$(ls -l ${MACSDIR}/CHIP_INPUT/*.bed | wc -l)
+	    			mkdir ${MACSDIR}/CHIP_INPUT/BigBeds
+	    			sbatch --array=1-$num_files ${FUNCTIONSDIR}/bedtobigbed_peaks.sh ${MACSDIR}/CHIP_INPUT ${MACSDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
+	    		fi
+			if [ $EPIC == "true" ]
+	    		then
+	          num_files=$(ls -l ${EPICDIR}/CHIP_INPUT/*.bed | wc -l)
+	    			mkdir ${EPICDIR}/CHIP_INPUT/BigBeds
+	    			sbatch --array=1-$num_files ${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh ${EPICDIR}/CHIP_INPUT ${EPICDIR}/CHIP_INPUT/BigBeds ${FUNCTIONSDIR} $CHROM_SIZES
+	    		fi
+		fi
 	fi
-fi
+ fi

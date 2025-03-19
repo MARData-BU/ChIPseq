@@ -56,6 +56,7 @@ MACS=$(grep MACS: $PARAMS | awk '{print$2 }')
 EPIC=$(grep EPIC: $PARAMS | awk '{print$2 }')
 BIGBED=$(grep bigbed: $PARAMS | awk '{print$2 }')
 ADAPTER=$(grep adapter: $PARAMS | awk '{print$2 }')
+BROAD=$(grep broad: $PARAMS | awk '{print$2 }')
 
 # Batch
 FASTQDIR=$(grep fastqdir: $PARAMS | awk '{print$2 }')
@@ -618,7 +619,7 @@ for folder in "${folders[@]}"; do
       MOCKDIR=${MACSDIR}/CHIP_MOCK
       INPUTDIR=${MACSDIR}/CHIP_INPUT
       echo -e "Running MACS2"
-      JOB_MACS=$(sbatch --dependency=afterany:${JOB_COMP} --parsable ${FUNCTIONSDIR}/MACS2_run.sh ${PROJECTINFO}/${folder} ${MACSDIR} ${BAMDIR}/Phantompeakqualtools $macs2_specie ${FUNCTIONSDIR})
+      JOB_MACS=$(sbatch --dependency=afterany:${JOB_COMP} --parsable ${FUNCTIONSDIR}/MACS2_run.sh ${PROJECTINFO}/${folder} ${MACSDIR} ${BAMDIR}/Phantompeakqualtools $macs2_specie ${FUNCTIONSDIR} ${BROAD})
       fi
 
       if [ $EPIC == "true" ]

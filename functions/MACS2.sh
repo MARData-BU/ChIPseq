@@ -19,6 +19,7 @@ PEAKDIR=$2
 PHANTOM_PEAK_DIR=$3
 macs2_specie=$4
 FUNCTIONSDIR=$5
+BROAD=$6
 
 i=$(($SLURM_ARRAY_TASK_ID))
 
@@ -36,13 +37,25 @@ PHANTOM_PEAK=$(cat ${PHANTOM_PEAK_DIR}/${temp_var}.spp.out | cut -f 3 | cut -d "
 #-------------------------------------------------------------- COMMAND --------------------------------------------------------------
 
 if echo "$CONTROL_FILE" | grep -q "mock"; then
-THISCOMP=$(basename $CHIP_FILE "_mock_sorted.dedup.filtered.bam")
-macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_mock --nomodel --extsize $PHANTOM_PEAK --outdir ${PEAKDIR}/CHIP_MOCK -f BAM -g $macs2_specie
-echo "${THISCOMP}_chip_vs_mock" done! >> ${PEAKDIR}/CHIP_MOCK/count.txt
+    if [ "$BROAD" == "true" ]; then
+        THISCOMP=$(basename $CHIP_FILE "_mock_sorted.dedup.filtered.bam")
+        macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_mock --nomodel --extsize $PHANTOM_PEAK --outdir ${PEAKDIR}/CHIP_MOCK -f BAM -g $macs2_specie --broad # default cutoff of qvalue<0.1
+        echo "${THISCOMP}_chip_vs_mock" done! >> ${PEAKDIR}/CHIP_MOCK/count.txt
+    else
+        THISCOMP=$(basename $CHIP_FILE "_mock_sorted.dedup.filtered.bam")
+        macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_mock --nomodel --extsize $PHANTOM_PEAK --outdir ${PEAKDIR}/CHIP_MOCK -f BAM -g $macs2_specie
+        echo "${THISCOMP}_chip_vs_mock" done! >> ${PEAKDIR}/CHIP_MOCK/count.txt
+    fi
 else
-THISCOMP=$(basename $CHIP_FILE "_input_sorted.dedup.filtered.bam")
-macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_input --nomodel --extsize $PHANTOM_PEAK --outdir ${PEAKDIR}/CHIP_INPUT -f BAM -g $macs2_specie
-echo "${THISCOMP}_chip_vs_input" done! >> ${PEAKDIR}/CHIP_INPUT/count.txt
+    if [ "$BROAD" == "true" ]; then
+        THISCOMP=$(basename $CHIP_FILE "_input_sorted.dedup.filtered.bam")
+        macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_input --nomodel --extsize $PHANTOM_PEAK --outdir ${PEAKDIR}/CHIP_INPUT -f BAM -g $macs2_specie --broad # default cutoff of qvalue<0.1
+        echo "${THISCOMP}_chip_vs_input" done! >> ${PEAKDIR}/CHIP_INPUT/count.txt
+    else
+        THISCOMP=$(basename $CHIP_FILE "_input_sorted.dedup.filtered.bam")
+        macs2 callpeak -t $CHIP_FILE -c $CONTROL_FILE -n ${THISCOMP}_chip_vs_input --nomodel --extsize $PHANTOM_PEAK --outdir ${PEAKDIR}/CHIP_INPUT -f BAM -g $macs2_specie
+        echo "${THISCOMP}_chip_vs_input" done! >> ${PEAKDIR}/CHIP_INPUT/count.txt
+    fi
 fi
 
 

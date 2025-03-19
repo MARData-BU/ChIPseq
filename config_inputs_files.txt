@@ -16,6 +16,7 @@ peak_calling: true
 MACS: true
 EPIC: false
 bigbed: false
+broad: false
 
 genome: /bicoh/MARGenomics/Ref_Genomes_fa/GRCh38/GRCh38.primary_assembly.genome.fa
 index_bowtie2: /bicoh/MARGenomics/AnalysisFiles/Index_Genomes_Bowtie2/Human/GRCh38_ChIPSeq/GRCh38/GRCh38

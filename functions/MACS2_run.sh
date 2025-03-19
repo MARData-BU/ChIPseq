@@ -13,9 +13,10 @@ PEAKDIR=$2
 PHANTOM_PEAK_DIR=$3
 macs2_specie=$4
 FUNCTIONSDIR=$5
+BROAD=$6
 
 number_of_comparisons=$(cat ${PROJECTINFO}/comparisons.txt | wc -l)
 
-sbatch --array=1-$number_of_comparisons ${FUNCTIONSDIR}/MACS2.sh ${PROJECTINFO} ${PEAKDIR} $PHANTOM_PEAK_DIR $macs2_specie ${FUNCTIONSDIR}
+sbatch --array=1-$number_of_comparisons ${FUNCTIONSDIR}/MACS2.sh ${PROJECTINFO} ${PEAKDIR} ${PHANTOM_PEAK_DIR} ${macs2_specie} ${FUNCTIONSDIR} ${BROAD}
 
 

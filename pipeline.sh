@@ -640,119 +640,122 @@ done
 
 #### 11. BIG BEDS:
 
-if [ "$BIGBED" == "true" ]; then
-  MACSDIR="$OUTPUT/PEAK_CALLING/MACS2"
-  EPICDIR="$OUTPUT/PEAK_CALLING/EPIC2"
+for folder in "${folders[@]}"; do
+  if [ "$BIGBED" == "true" ]; then
+    MACSDIR="$OUTPUT/PEAK_CALLING/${folder}/MACS2"
+    EPICDIR="$OUTPUT/PEAK_CALLING/${folder}/EPIC2"
 
-  echo -e "MACS directory is $MACSDIR"
-  echo -e "EPIC directory is $EPICDIR"
+    echo -e "MACS directory is $MACSDIR"
+    echo -e "EPIC directory is $EPICDIR"
 
-  if [ -d "$OUTPUT/PEAK_CALLING/MACS2/CHIP_INPUT" ] || [ -d "$OUTPUT/PEAK_CALLING/EPIC2/CHIP_INPUT" ]; then
-    if [ "$PEAK_CALL" == "true" ]; then
-      if [ "$MACS" == "true" ] && [ "$EPIC" == "true" ]; then
-        echo -e "Waiting for both MACS2 ($JOB_MACS) and EPIC2 ($JOB_EPIC) jobs to finish..."
-        while squeue -j "$JOB_MACS" | grep -q "$JOB_MACS" || squeue -j "$JOB_EPIC" | grep -q "$JOB_EPIC"; do
-          sleep 120  # Sleep 2 minutes until both jobs are done
-        done
+    if [ -d "$OUTPUT/PEAK_CALLING/MACS2/CHIP_INPUT" ] || [ -d "$OUTPUT/PEAK_CALLING/EPIC2/CHIP_INPUT" ]; then
+      if [ "$PEAK_CALL" == "true" ]; then
+        if [ "$MACS" == "true" ] && [ "$EPIC" == "true" ]; then
+          echo -e "Waiting for both MACS2 ($JOB_MACS) and EPIC2 ($JOB_EPIC) jobs to finish..."
+          while squeue -h -j "$JOB_MACS" | grep -q . || squeue -h -j "$JOB_EPIC" | grep -q .; do
+            sleep 120  # Sleep 2 minutes until both jobs are done
+          done
 
-        echo -e "Both MACS2 and EPIC2 jobs completed. Syncing file system..."
-        sleep 60  
+          echo -e "Both MACS2 and EPIC2 jobs completed. Syncing file system..."
+          sleep 60  
 
-        # Compute MACS2 files
-        num_files_macs=$(find "${MACSDIR}/CHIP_INPUT" -maxdepth 1 -name "*.bed" | wc -l)
-        echo -e "There are $num_files_macs bed files for MACS2."
-        mkdir -p "${MACSDIR}/CHIP_INPUT/BigBeds"
-        if [ "$num_files_macs" -gt 0 ]; then
-          echo -e "Submitting MACS2 jobs..."
-          sbatch --array=1-"$num_files_macs" "${FUNCTIONSDIR}/bedtobigbed_peaks.sh" \
-                 "${MACSDIR}/CHIP_INPUT" "${MACSDIR}/CHIP_INPUT/BigBeds" \
-                 "${FUNCTIONSDIR}" "$CHROM_SIZES"
-        else
-          echo "No .bed files found for MACS2. Skipping submission."
+          # Compute MACS2 files
+          num_files_macs=$(find "${MACSDIR}/CHIP_INPUT" -maxdepth 1 -name "*.bed" | wc -l)
+          echo -e "There are $num_files_macs bed files for MACS2."
+          mkdir -p "${MACSDIR}/CHIP_INPUT/BigBeds"
+          if [ "$num_files_macs" -gt 0 ]; then
+            echo -e "Submitting MACS2 jobs..."
+            sbatch --array=1-"$num_files_macs" "${FUNCTIONSDIR}/bedtobigbed_peaks.sh" \
+                  "${MACSDIR}/CHIP_INPUT" "${MACSDIR}/CHIP_INPUT/BigBeds" \
+                  "${FUNCTIONSDIR}" "$CHROM_SIZES"
+          else
+            echo "No .bed files found for MACS2. Skipping submission."
+          fi
+
+          # Compute EPIC2 files
+          num_files_epic=$(find "${EPICDIR}/CHIP_INPUT" -maxdepth 1 -name "*.txt" | wc -l)
+          echo -e "There are $num_files_epic txt files for EPIC2."
+          mkdir -p "${EPICDIR}/CHIP_INPUT/BigBeds"
+          if [ "$num_files_epic" -gt 0 ]; then
+            echo -e "Submitting EPIC2 jobs..."
+            sbatch --array=1-"$num_files_epic" "${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh" \
+                  "${EPICDIR}/CHIP_INPUT" "${EPICDIR}/CHIP_INPUT/BigBeds" \
+                  "${FUNCTIONSDIR}" "$CHROM_SIZES"
+          else
+            echo "No .txt files found for EPIC2. Skipping submission."
+          fi
         fi
 
-        # Compute EPIC2 files
-        num_files_epic=$(find "${EPICDIR}/CHIP_INPUT" -maxdepth 1 -name "*.txt" | wc -l)
-        echo -e "There are $num_files_epic txt files for EPIC2."
-        mkdir -p "${EPICDIR}/CHIP_INPUT/BigBeds"
-        if [ "$num_files_epic" -gt 0 ]; then
-          echo -e "Submitting EPIC2 jobs..."
-          sbatch --array=1-"$num_files_epic" "${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh" \
-                 "${EPICDIR}/CHIP_INPUT" "${EPICDIR}/CHIP_INPUT/BigBeds" \
-                 "${FUNCTIONSDIR}" "$CHROM_SIZES"
-        else
-          echo "No .txt files found for EPIC2. Skipping submission."
+        if [ "$MACS" == "true" ] && [ "$EPIC" != "true" ]; then
+          echo -e "Waiting for MACS2 jobs ($JOB_MACS) to finish..."
+          while squeue -h -j "$JOB_MACS" | grep -q .; do
+            sleep 120
+          done
+          sleep 60
+
+          num_files=$(find "${MACSDIR}/CHIP_INPUT" -maxdepth 1 -name "*.bed" | wc -l)
+          echo -e "There are $num_files bed files for MACS2."
+          mkdir -p "${MACSDIR}/CHIP_INPUT/BigBeds"
+          if [ "$num_files" -gt 0 ]; then
+            echo -e "Submitting MACS2 jobs..."
+            sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks.sh" \
+                  "${MACSDIR}/CHIP_INPUT" "${MACSDIR}/CHIP_INPUT/BigBeds" \
+                  "${FUNCTIONSDIR}" "$CHROM_SIZES"
+          else
+            echo "No .bed files found for MACS2. Skipping submission."
+          fi
         fi
-      fi
 
-      if [ "$MACS" == "true" ] && [ "$EPIC" != "true" ]; then
-        echo -e "Waiting for MACS2 jobs ($JOB_MACS) to finish..."
-        while squeue -j "$JOB_MACS" | grep -q "$JOB_MACS"; do
-          sleep 120
-        done
-        sleep 60
+        if [ "$EPIC" == "true" ] && [ "$MACS" != "true" ]; then
+          echo -e "Waiting for EPIC2 jobs ($JOB_EPIC) to finish..."
+          while squeue -h -j "$JOB_EPIC" | grep -q .; do
 
-        num_files=$(find "${MACSDIR}/CHIP_INPUT" -maxdepth 1 -name "*.bed" | wc -l)
-        echo -e "There are $num_files bed files for MACS2."
-        mkdir -p "${MACSDIR}/CHIP_INPUT/BigBeds"
-        if [ "$num_files" -gt 0 ]; then
-          echo -e "Submitting MACS2 jobs..."
-          sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks.sh" \
-                 "${MACSDIR}/CHIP_INPUT" "${MACSDIR}/CHIP_INPUT/BigBeds" \
-                 "${FUNCTIONSDIR}" "$CHROM_SIZES"
-        else
-          echo "No .bed files found for MACS2. Skipping submission."
+            sleep 120
+          done
+          sleep 60
+
+          num_files=$(find "${EPICDIR}/CHIP_INPUT" -maxdepth 1 -name "*.txt" | wc -l)
+          echo -e "There are $num_files txt files for EPIC2."
+          mkdir -p "${EPICDIR}/CHIP_INPUT/BigBeds"
+          if [ "$num_files" -gt 0 ]; then
+            echo -e "Submitting EPIC2 jobs..."
+            sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh" \
+                  "${EPICDIR}/CHIP_INPUT" "${EPICDIR}/CHIP_INPUT/BigBeds" \
+                  "${FUNCTIONSDIR}" "$CHROM_SIZES"
+          else
+            echo "No .txt files found for EPIC2. Skipping submission."
+          fi
         fi
-      fi
-
-      if [ "$EPIC" == "true" ] && [ "$MACS" != "true" ]; then
-        echo -e "Waiting for EPIC2 jobs ($JOB_EPIC) to finish..."
-        while squeue -j "$JOB_EPIC" | grep -q "$JOB_EPIC"; do
-          sleep 120
-        done
-        sleep 60
-
-        num_files=$(find "${EPICDIR}/CHIP_INPUT" -maxdepth 1 -name "*.txt" | wc -l)
-        echo -e "There are $num_files txt files for EPIC2."
-        mkdir -p "${EPICDIR}/CHIP_INPUT/BigBeds"
-        if [ "$num_files" -gt 0 ]; then
-          echo -e "Submitting EPIC2 jobs..."
-          sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh" \
-                 "${EPICDIR}/CHIP_INPUT" "${EPICDIR}/CHIP_INPUT/BigBeds" \
-                 "${FUNCTIONSDIR}" "$CHROM_SIZES"
-        else
-          echo "No .txt files found for EPIC2. Skipping submission."
+      else
+        # If PEAK_CALL is false, process MACS2 and EPIC2 separately without waiting for job completion
+        if [ "$MACS" == "true" ]; then
+          num_files=$(find "${MACSDIR}/CHIP_INPUT" -maxdepth 1 -name "*.bed" | wc -l)
+          echo -e "There are $num_files bed files for MACS2."
+          mkdir -p "${MACSDIR}/CHIP_INPUT/BigBeds"
+          if [ "$num_files" -gt 0 ]; then
+            echo -e "Submitting MACS2 jobs..."
+            sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks.sh" \
+                  "${MACSDIR}/CHIP_INPUT" "${MACSDIR}/CHIP_INPUT/BigBeds" \
+                  "${FUNCTIONSDIR}" "$CHROM_SIZES"
+          else
+            echo "No .bed files found for MACS2. Skipping submission."
+          fi
         fi
-      fi
-    else
-      # If PEAK_CALL is false, process MACS2 and EPIC2 separately without waiting for job completion
-      if [ "$MACS" == "true" ]; then
-        num_files=$(find "${MACSDIR}/CHIP_INPUT" -maxdepth 1 -name "*.bed" | wc -l)
-        echo -e "There are $num_files bed files for MACS2."
-        mkdir -p "${MACSDIR}/CHIP_INPUT/BigBeds"
-        if [ "$num_files" -gt 0 ]; then
-          echo -e "Submitting MACS2 jobs..."
-          sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks.sh" \
-                 "${MACSDIR}/CHIP_INPUT" "${MACSDIR}/CHIP_INPUT/BigBeds" \
-                 "${FUNCTIONSDIR}" "$CHROM_SIZES"
-        else
-          echo "No .bed files found for MACS2. Skipping submission."
-        fi
-      fi
 
-      if [ "$EPIC" == "true" ]; then
-        num_files=$(find "${EPICDIR}/CHIP_INPUT" -maxdepth 1 -name "*.txt" | wc -l)
-        echo -e "There are $num_files txt files for EPIC2."
-        mkdir -p "${EPICDIR}/CHIP_INPUT/BigBeds"
-        if [ "$num_files" -gt 0 ]; then
-          echo -e "Submitting EPIC2 jobs..."
-          sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh" \
-                 "${EPICDIR}/CHIP_INPUT" "${EPICDIR}/CHIP_INPUT/BigBeds" \
-                 "${FUNCTIONSDIR}" "$CHROM_SIZES"
-        else
-          echo "No .txt files found for EPIC2. Skipping submission."
+        if [ "$EPIC" == "true" ]; then
+          num_files=$(find "${EPICDIR}/CHIP_INPUT" -maxdepth 1 -name "*.txt" | wc -l)
+          echo -e "There are $num_files txt files for EPIC2."
+          mkdir -p "${EPICDIR}/CHIP_INPUT/BigBeds"
+          if [ "$num_files" -gt 0 ]; then
+            echo -e "Submitting EPIC2 jobs..."
+            sbatch --array=1-"$num_files" "${FUNCTIONSDIR}/bedtobigbed_peaks_epic2.sh" \
+                  "${EPICDIR}/CHIP_INPUT" "${EPICDIR}/CHIP_INPUT/BigBeds" \
+                  "${FUNCTIONSDIR}" "$CHROM_SIZES"
+          else
+            echo "No .txt files found for EPIC2. Skipping submission."
+          fi
         fi
       fi
     fi
   fi
-fi
+done
